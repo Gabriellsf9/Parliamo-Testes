@@ -2,7 +2,6 @@ describe('Audio Recorder', () => {
   beforeEach(() => {
     cy.visit('/auth/login');
     cy.get('input[type="email"]').clear().type('souzagamer14@gmail.com');
-    ');
     cy.get('input[type="password"]').clear().type('@Multilaser9');
     cy.contains('button[type="submit"]', 'Entrar').click({ force: true });
     cy.url({ timeout: 20000 }).should('not.include', '/auth/login');
