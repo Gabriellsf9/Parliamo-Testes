@@ -57,4 +57,84 @@ describe('Message Sending', () => {
     cy.get('textarea[placeholder*="Mensagem em"]').clear();
     cy.get('button[type="submit"][style*="parliamo-accent"]').should('be.disabled');
   });
+
+  it('deve enviar mensagem longa (limite de caracteres)', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    const longMessage = 'a'.repeat(4000);
+    cy.get('textarea[placeholder*="Mensagem em"]').type(longMessage);
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.contains(longMessage.substring(0, 50)).should('be.visible');
+  });
+
+  it('deve enviar mensagem com emojis', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type('Teste com emoji 😀🎉🚀');
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.contains('Teste com emoji 😀🎉🚀').should('be.visible');
+  });
+
+  it('deve enviar mensagem com menção @usuario', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type('@usuario teste de menção');
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.contains('@usuario teste de menção').should('be.visible');
+  });
+
+  it('deve enviar mensagem com hashtag #canal', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type('Teste #canal referencia');
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.contains('Teste #canal referencia').should('be.visible');
+  });
+
+  it('deve enviar mensagem com markdown básico', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type('**negrito** *itálico* `código`');
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.contains('**negrito** *itálico* `código`').should('be.visible');
+  });
+
+  it('deve manter foco no input após enviar', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type('Teste foco{enter}');
+    cy.get('textarea[placeholder*="Mensagem em"]').should('be.focused');
+  });
+
+  it('deve limpar input após envio bem-sucedido', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type('Mensagem para limpar');
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.get('textarea[placeholder*="Mensagem em"]').should('have.value', '');
+  });
+
+  it('deve mostrar indicador de enviando durante envio', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type('Teste loading');
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.get('button[type="submit"][style*="parliamo-accent"]').should('be.disabled');
+  });
+
+  it('deve lidar com caracteres especiais', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type('¡Hola! 你好 Привет 🎌');
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.contains('¡Hola! 你好 Привет 🎌').should('be.visible');
+  });
+
+  it('deve enviar múltiplas mensagens rápidas sem travar', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    for (let i = 0; i < 20; i++) {
+      cy.get('textarea[placeholder*="Mensagem em"]').type(`Msg rápida ${i}{enter}`);
+    }
+    cy.get('[data-testid="message-list"]').should('contain', 'Msg rápida 0');
+    cy.get('[data-testid="message-list"]').should('contain', 'Msg rápida 19');
+  });
+
+  it('deve preservar rascunho ao navegar entre canais', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type('Rascunho salvo');
+    cy.get('a[href*="/channel/"]').eq(1).click({ force: true });
+    cy.get('a[href*="/channel/"]').first().click({ force: true });
+    cy.get('textarea[placeholder*="Mensagem em"]').should('have.value', 'Rascunho salvo');
+  });
 });

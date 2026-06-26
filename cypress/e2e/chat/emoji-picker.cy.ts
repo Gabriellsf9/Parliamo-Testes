@@ -50,4 +50,42 @@ describe('Emoji Picker', () => {
     cy.get('body').click(0, 0);
     cy.get('[data-testid="emoji-picker"]').should('not.be.visible');
   });
+
+  it('deve buscar emoji por nome', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="emoji-picker-trigger"]').click({ force: true });
+    cy.get('[data-testid="emoji-search"]').type('heart');
+    cy.get('[data-testid="emoji-picker-emoji-❤️"]').should('be.visible');
+    cy.get('[data-testid="emoji-picker-emoji-💚"]').should('be.visible');
+  });
+
+  it('deve navegar por categorias', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="emoji-picker-trigger"]').click({ force: true });
+    cy.get('[data-testid="emoji-category-smileys"]').click({ force: true });
+    cy.get('[data-testid="emoji-picker-emoji-😀"]').should('be.visible');
+    cy.get('[data-testid="emoji-category-animals"]').click({ force: true });
+    cy.get('[data-testid="emoji-picker-emoji-🐶"]').should('be.visible');
+  });
+
+  it('deve mostrar emojis frequentes', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="emoji-picker-trigger"]').click({ force: true });
+    cy.get('[data-testid="emoji-frequent"]').should('be.visible');
+    cy.get('[data-testid="emoji-frequent"]').children().should('have.length.greaterThan', 0);
+  });
+
+  it('deve inserir emoji via teclado', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('textarea[placeholder*="Mensagem em"]').type(':thumbsup:{enter}');
+    cy.get('textarea[placeholder*="Mensagem em"]').should('have.value', '👍');
+  });
+
+  it('deve fechar picker com ESC', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="emoji-picker-trigger"]').click({ force: true });
+    cy.get('[data-testid="emoji-picker"]').should('be.visible');
+    cy.get('body').type('{esc}');
+    cy.get('[data-testid="emoji-picker"]').should('not.be.visible');
+  });
 });

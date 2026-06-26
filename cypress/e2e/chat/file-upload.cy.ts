@@ -53,4 +53,57 @@ describe('File Upload', () => {
     cy.get('[data-testid="file-upload-remove"]').click({ force: true });
     cy.get('[data-testid="file-upload-remove"]').should('not.exist');
   });
+
+  it('deve fazer upload de múltiplos arquivos', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="file-upload-trigger"]').click({ force: true });
+    cy.get('input[type="file"]').selectFile([
+      'cypress/fixtures/test-image.png',
+      'cypress/fixtures/test-document.pdf'
+    ], { force: true });
+    cy.get('[data-testid="file-upload-remove"]').should('have.length', 2);
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.get('img[alt="test-image.png"]').should('be.visible');
+    cy.contains('test-document.pdf').should('be.visible');
+  });
+
+  it('deve rejeitar arquivo muito grande', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="file-upload-trigger"]').click({ force: true });
+    cy.get('input[type="file"]').selectFile('cypress/fixtures/large-file.zip', { force: true });
+    cy.contains(/muito grande|tamanho excedido|limite/i).should('be.visible');
+  });
+
+  it('deve rejeitar tipo de arquivo não permitido', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="file-upload-trigger"]').click({ force: true });
+    cy.get('input[type="file"]').selectFile('cypress/fixtures/malware.exe', { force: true });
+    cy.contains(/tipo não permitido|formato inválido|não suportado/i).should('be.visible');
+  });
+
+  it('deve mostrar progresso do upload', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="file-upload-trigger"]').click({ force: true });
+    cy.get('input[type="file"]').selectFile('cypress/fixtures/test-image.png', { force: true });
+    cy.get('[data-testid="upload-progress"]').should('be.visible');
+    cy.get('[data-testid="upload-progress"]').should('contain', '%');
+  });
+
+  it('deve permitir download do arquivo enviado', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="file-upload-trigger"]').click({ force: true });
+    cy.get('input[type="file"]').selectFile('cypress/fixtures/test-document.pdf', { force: true });
+    cy.get('button[type="submit"][style*="parliamo-accent"]').click({ force: true });
+    cy.contains('test-document.pdf').should('be.visible');
+    cy.get('[data-testid="file-download"]').click({ force: true });
+    cy.readFile('cypress/downloads/test-document.pdf').should('exist');
+  });
+
+  it('deve mostrar preview de imagem antes de enviar', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('[data-testid="file-upload-trigger"]').click({ force: true });
+    cy.get('input[type="file"]').selectFile('cypress/fixtures/test-image.png', { force: true });
+    cy.get('[data-testid="file-preview"]').should('be.visible');
+    cy.get('[data-testid="file-preview"]').should('have.attr', 'src');
+  });
 });

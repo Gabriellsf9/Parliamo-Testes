@@ -50,4 +50,62 @@ describe('Command Palette', () => {
     cy.contains('Novo grupo').click({ force: true });
     cy.get('[data-testid="create-channel-modal"]').should('be.visible');
   });
+
+  it('deve executar comando "Nova DM"', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('body').type('{meta}k');
+    cy.get('[data-testid="command-palette"] input').type('nova dm');
+    cy.contains('Nova mensagem direta').click({ force: true });
+    cy.get('[data-testid="new-dm-modal"]').should('be.visible');
+  });
+
+  it('deve executar comando "Configurações"', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('body').type('{meta}k');
+    cy.get('[data-testid="command-palette"] input').type('config');
+    cy.contains('Configurações').click({ force: true });
+    cy.get('[data-testid="settings-modal"]').should('be.visible');
+  });
+
+  it('deve navegar com setas', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('body').type('{meta}k');
+    cy.get('[data-testid="command-palette"]').should('be.visible');
+    cy.get('body').type('{downarrow}');
+    cy.get('[data-testid="command-palette"] [aria-selected="true"]').should('exist');
+    cy.get('body').type('{downarrow}');
+    cy.get('[data-testid="command-palette"] [aria-selected="true"]').should('exist');
+  });
+
+  it('deve executar comando selecionado com Enter', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('body').type('{meta}k');
+    cy.get('body').type('{downarrow}');
+    cy.get('body').type('{enter}');
+    cy.get('[data-testid="command-palette"]').should('not.exist');
+  });
+
+  it('deve fechar com ESC', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('body').type('{meta}k');
+    cy.get('[data-testid="command-palette"]').should('be.visible');
+    cy.get('body').type('{esc}');
+    cy.get('[data-testid="command-palette"]').should('not.exist');
+  });
+
+  it('deve mostrar atalhos de teclado', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('body').type('{meta}k');
+    cy.get('[data-testid="command-palette"]').should('be.visible');
+    cy.contains('⌘K').should('be.visible');
+    cy.contains('⌘/').should('be.visible');
+  });
+
+  it('deve executar comando "Tema escuro"', () => {
+    cy.get('a[href*="/channel/"]').first().click();
+    cy.get('body').type('{meta}k');
+    cy.get('[data-testid="command-palette"] input').type('tema escuro');
+    cy.contains('Tema escuro').click({ force: true });
+    cy.get('html').should('have.class', 'dark');
+  });
 });
